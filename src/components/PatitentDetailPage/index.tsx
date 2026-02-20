@@ -12,6 +12,10 @@ const PatientDetailPage = () => {
 	const id = params.id;
 
 	useEffect(() => {
+		if (!id) {
+			return;
+		}
+
 		const fetchPatient = async () => {
 			const patient = await patientService.findById(id);
 
