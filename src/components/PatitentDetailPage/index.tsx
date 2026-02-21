@@ -6,6 +6,8 @@ import MaleIcon from '@mui/icons-material/Female';
 import { Diagnosis, Patient } from '../../types';
 import patientService from '../../services/patients';
 import diagnoseService from '../../services/diagnoses';
+import EntryComponent from '../EntryPage';
+import { Button } from '@mui/material';
 
 const PatientDetailPage = () => {
 	const [patient, setPatient] = useState<Patient | null>(null);
@@ -43,23 +45,12 @@ const PatientDetailPage = () => {
 			<div>
 				<h3>entries</h3>
 				{patient?.entries.map((entry) => (
-					<div key={entry.id}>
-						<p>
-							<strong>{entry.date}</strong> {entry.description}
-						</p>
-						<ul>
-							{entry.diagnosisCodes?.map((code) => {
-								const diagnosis = diagnoses.find((d) => d.code === code);
-								return (
-									<li key={code}>
-										{code} {diagnosis?.name}
-									</li>
-								);
-							})}
-						</ul>
-					</div>
+					<EntryComponent key={entry.id} entry={entry} diagnoses={diagnoses} />
 				))}
 			</div>
+			<Button variant='contained' color='primary'>
+				ADD NEW ENTRY
+			</Button>
 		</div>
 	);
 };
