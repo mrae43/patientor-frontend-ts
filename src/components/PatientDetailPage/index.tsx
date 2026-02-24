@@ -7,13 +7,15 @@ import { Diagnosis, EntryFormValuesHealthCheck, Patient } from '../../types';
 import patientService from '../../services/patients';
 import diagnoseService from '../../services/diagnoses';
 import EntryDetails from '../EntryDetails';
-import { Button } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 import AddEntryForm from './AddEntryForm';
+import axios from 'axios';
 
 const PatientDetailPage = () => {
 	const [patient, setPatient] = useState<Patient | null>(null);
 	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 	const [showEntryForm, setShowEntryForm] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const params = useParams();
 	const id = params.id;
 
@@ -27,11 +29,24 @@ const PatientDetailPage = () => {
 			const newEntry = await patientService.addNewEntries(id, values);
 			setPatient({
 				...patient,
-				entries: [...(patient.entries || []), newEntry], // 👈 Merge locally
+				entries: [...(patient.entries || []), newEntry],
 			});
 			setShowEntryForm(false);
-		} catch (error) {
-			console.log(error);
+			setError(null);
+		} catch (e: unknown) {
+			if (axios.isAxiosError(e)) {
+				if (e?.response?.data && typeof e?.response?.data === 'string') {
+					const message = e.response.data.replace(
+						'Something went wrong. Error: ',
+						'',
+					);
+					setError(message);
+				} else {
+					setError('Unrecognized axios error');
+				}
+			} else {
+				setError('Unknown error');
+			}
 		}
 	};
 
@@ -63,7 +78,18 @@ const PatientDetailPage = () => {
 			<p>ssh: {patient?.ssn}</p>
 			<p>occupation: {patient?.occupation}</p>
 			{showEntryForm && (
-				<AddEntryForm onSubmit={handleSubmit} onCancel={handleEntryForm} />
+				<>
+					{error && (
+						<Alert severity='error' onClose={() => setError(null)}>
+							{error}
+						</Alert>
+					)}
+					<AddEntryForm
+						onSubmit={handleSubmit}
+						onCancel={handleEntryForm}
+						onError={setError}
+					/>
+				</>
 			)}
 			<div>
 				<h3>entries</h3>
