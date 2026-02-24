@@ -3,17 +3,37 @@ import { useParams } from 'react-router-dom';
 import FemaleIcon from '@mui/icons-material/Female';
 import MaleIcon from '@mui/icons-material/Female';
 
-import { Diagnosis, Patient } from '../../types';
+import { Diagnosis, EntryFormValuesHealthCheck, Patient } from '../../types';
 import patientService from '../../services/patients';
 import diagnoseService from '../../services/diagnoses';
-import EntryComponent from '../EntryPage';
+import EntryDetails from '../EntryDetails';
 import { Button } from '@mui/material';
+import AddEntryForm from './AddEntryForm';
 
 const PatientDetailPage = () => {
 	const [patient, setPatient] = useState<Patient | null>(null);
 	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
+	const [showEntryForm, setShowEntryForm] = useState(false);
 	const params = useParams();
 	const id = params.id;
+
+	const handleEntryForm = () => {
+		setShowEntryForm((prev) => !prev);
+	};
+
+	const handleSubmit = async (values: EntryFormValuesHealthCheck) => {
+		if (!id || !patient) return;
+		try {
+			const newEntry = await patientService.addNewEntries(id, values);
+			setPatient({
+				...patient,
+				entries: [...(patient.entries || []), newEntry], // 👈 Merge locally
+			});
+			setShowEntryForm(false);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
 	useEffect(() => {
 		if (!id) {
@@ -42,13 +62,20 @@ const PatientDetailPage = () => {
 			</h1>
 			<p>ssh: {patient?.ssn}</p>
 			<p>occupation: {patient?.occupation}</p>
+			{showEntryForm && (
+				<AddEntryForm onSubmit={handleSubmit} onCancel={handleEntryForm} />
+			)}
 			<div>
 				<h3>entries</h3>
 				{patient?.entries.map((entry) => (
-					<EntryComponent key={entry.id} entry={entry} diagnoses={diagnoses} />
+					<EntryDetails key={entry.id} entry={entry} diagnoses={diagnoses} />
 				))}
 			</div>
-			<Button variant='contained' color='primary'>
+			<Button
+				sx={{ mt: '10px' }}
+				variant='contained'
+				color='primary'
+				onClick={handleEntryForm}>
 				ADD NEW ENTRY
 			</Button>
 		</div>

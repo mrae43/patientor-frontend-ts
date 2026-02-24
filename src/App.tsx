@@ -5,8 +5,8 @@ import { Button, Divider, Container, Typography } from '@mui/material';
 import { Patient } from './types';
 
 import patientService from './services/patients';
-import PatientListPage from './components/PatientListPage';
-import PatientDetailPage from './components/PatitentDetailPage';
+import PatientListPage from './components/PatientListPage/index';
+import PatientDetailPage from './components/PatientDetailPage/index';
 
 const App = () => {
 	const [patients, setPatients] = useState<Patient[]>([]);
