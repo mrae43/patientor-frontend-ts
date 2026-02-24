@@ -5,9 +5,10 @@ import { Box, Button, TextField } from '@mui/material';
 interface Props {
 	onSubmit: (values: EntryFormValuesHealthCheck) => void;
 	onCancel: () => void;
+	onError: (error: string | null) => void;
 }
 
-const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
+const AddEntryForm = ({ onSubmit, onCancel, onError }: Props) => {
 	const [description, setDescription] = useState('');
 	const [date, setDate] = useState('');
 	const [specialist, setSpecialist] = useState('');
@@ -18,6 +19,15 @@ const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
 
 	const addEntry = (event: SyntheticEvent) => {
 		event.preventDefault();
+		if (!date || !description || !specialist) {
+			onError('All fields except diagnosis codes are required');
+			return;
+		}
+		if (!Object.values(HealthCheckRating).includes(healthCheckRating)) {
+			onError('HealthCheck rating must be 0-3');
+			return;
+		}
+		onError(null);
 		onSubmit({
 			date,
 			description,
