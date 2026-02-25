@@ -35,6 +35,7 @@ const PatientDetailPage = () => {
 				...patient,
 				entries: [...(patient.entries || []), newEntry],
 			});
+			setSelectedType(undefined);
 			setError(null);
 		} catch (e: unknown) {
 			if (axios.isAxiosError(e)) {
@@ -92,7 +93,6 @@ const PatientDetailPage = () => {
 						entryType={selectedType}
 						onSubmit={handleSubmit}
 						onCancel={handleEntryFormCancel}
-						onError={setError}
 					/>
 				</>
 			)}
