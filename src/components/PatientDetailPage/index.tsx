@@ -3,12 +3,7 @@ import { useParams } from 'react-router-dom';
 import FemaleIcon from '@mui/icons-material/Female';
 import MaleIcon from '@mui/icons-material/Male';
 
-import {
-	Diagnosis,
-	EntryFormValuesHealthCheck,
-	EntryType,
-	Patient,
-} from '../../types';
+import { Diagnosis, EntryFormValues, EntryType, Patient } from '../../types';
 import patientService from '../../services/patients';
 import diagnoseService from '../../services/diagnoses';
 import EntryDetails from '../EntryDetails';
@@ -32,7 +27,7 @@ const PatientDetailPage = () => {
 		setSelectedType(undefined);
 	};
 
-	const handleSubmit = async (values: EntryFormValuesHealthCheck) => {
+	const handleSubmit = async (values: EntryFormValues) => {
 		if (!id || !patient) return;
 		try {
 			const newEntry = await patientService.addNewEntries(id, values);

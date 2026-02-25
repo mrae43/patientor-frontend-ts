@@ -1,14 +1,15 @@
 import { SyntheticEvent, useState } from 'react';
-import { EntryFormValuesHealthCheck, HealthCheckRating } from '../../types';
+import { EntryFormValues, EntryType, HealthCheckRating } from '../../types';
 import { Box, Button, TextField } from '@mui/material';
 
 interface Props {
-	onSubmit: (values: EntryFormValuesHealthCheck) => void;
+	entryType: EntryType;
+	onSubmit: (values: EntryFormValues) => void;
 	onCancel: () => void;
 	onError: (error: string | null) => void;
 }
 
-const AddEntryForm = ({ onSubmit, onCancel, onError }: Props) => {
+const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 	const [description, setDescription] = useState('');
 	const [date, setDate] = useState('');
 	const [specialist, setSpecialist] = useState('');
@@ -40,7 +41,7 @@ const AddEntryForm = ({ onSubmit, onCancel, onError }: Props) => {
 
 	return (
 		<Box component='section' sx={{ p: 2, border: '1px dashed grey' }}>
-			<h3>New HealthCheck entry</h3>
+			<h3>New {entryType} entry</h3>
 			<div
 				style={{
 					display: 'flex',
