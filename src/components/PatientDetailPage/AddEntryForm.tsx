@@ -6,10 +6,9 @@ interface Props {
 	entryType: EntryType;
 	onSubmit: (values: EntryFormValues) => void;
 	onCancel: () => void;
-	onError: (error: string | null) => void;
 }
 
-const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
+const AddEntryForm = ({ entryType, onSubmit, onCancel }: Props) => {
 	const [description, setDescription] = useState('');
 	const [date, setDate] = useState('');
 	const [specialist, setSpecialist] = useState('');
@@ -26,28 +25,7 @@ const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 
 	const addEntry = (event: SyntheticEvent) => {
 		event.preventDefault();
-		if (!date || !description || !specialist) {
-			onError('All fields except diagnosis codes are required');
-			return;
-		}
-		if (
-			entryType === 'HealthCheck' &&
-			!Object.values(HealthCheckRating).includes(healthCheckRating)
-		) {
-			onError('HealthCheck rating must be 0-3');
-			return;
-		}
 
-		if (entryType === 'OccupationalHealthcare' && !employerName) {
-			onError('Employer name required');
-			return;
-		}
-
-		if (entryType === 'Hospital' && (!dischargeDate || !dischargeCriteria)) {
-			onError('Discharge date and criteria required');
-			return;
-		}
-		onError(null);
 		const baseValues = {
 			date,
 			description,
