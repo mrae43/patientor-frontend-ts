@@ -3,24 +3,33 @@ import { useParams } from 'react-router-dom';
 import FemaleIcon from '@mui/icons-material/Female';
 import MaleIcon from '@mui/icons-material/Female';
 
-import { Diagnosis, EntryFormValuesHealthCheck, Patient } from '../../types';
+import {
+	Diagnosis,
+	EntryFormValuesHealthCheck,
+	EntryType,
+	Patient,
+} from '../../types';
 import patientService from '../../services/patients';
 import diagnoseService from '../../services/diagnoses';
 import EntryDetails from '../EntryDetails';
 import { Alert, Button } from '@mui/material';
 import AddEntryForm from './AddEntryForm';
 import axios from 'axios';
+import EntryModal from './EntryTypeModal';
 
 const PatientDetailPage = () => {
 	const [patient, setPatient] = useState<Patient | null>(null);
 	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
-	const [showEntryForm, setShowEntryForm] = useState(false);
+	const [showTypeModal, setShowTypeModal] = useState(false);
+	const [selectedType, setSelectedType] = useState<EntryType>();
 	const [error, setError] = useState<string | null>(null);
 	const params = useParams();
 	const id = params.id;
 
-	const handleEntryForm = () => {
-		setShowEntryForm((prev) => !prev);
+	const handleAddEntry = () => setShowTypeModal(true);
+
+	const handleEntryFormCancel = () => {
+		setSelectedType(undefined);
 	};
 
 	const handleSubmit = async (values: EntryFormValuesHealthCheck) => {
@@ -31,7 +40,6 @@ const PatientDetailPage = () => {
 				...patient,
 				entries: [...(patient.entries || []), newEntry],
 			});
-			setShowEntryForm(false);
 			setError(null);
 		} catch (e: unknown) {
 			if (axios.isAxiosError(e)) {
@@ -77,16 +85,18 @@ const PatientDetailPage = () => {
 			</h1>
 			<p>ssh: {patient?.ssn}</p>
 			<p>occupation: {patient?.occupation}</p>
-			{showEntryForm && (
+			{!!selectedType && (
 				<>
 					{error && (
 						<Alert severity='error' onClose={() => setError(null)}>
 							{error}
 						</Alert>
 					)}
+
 					<AddEntryForm
+						entryType={selectedType}
 						onSubmit={handleSubmit}
-						onCancel={handleEntryForm}
+						onCancel={handleEntryFormCancel}
 						onError={setError}
 					/>
 				</>
@@ -101,9 +111,15 @@ const PatientDetailPage = () => {
 				sx={{ mt: '10px' }}
 				variant='contained'
 				color='primary'
-				onClick={handleEntryForm}>
+				onClick={handleAddEntry}>
 				ADD NEW ENTRY
 			</Button>
+
+			<EntryModal
+				showTypeModal={showTypeModal}
+				setShowTypeModal={setShowTypeModal}
+				setSelectedType={setSelectedType}
+			/>
 		</div>
 	);
 };
