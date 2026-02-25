@@ -13,10 +13,16 @@ const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 	const [description, setDescription] = useState('');
 	const [date, setDate] = useState('');
 	const [specialist, setSpecialist] = useState('');
+	const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+
 	const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(
 		HealthCheckRating.Healthy,
 	);
-	const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+	const [employerName, setEmployerName] = useState('');
+	const [sickLeaveStart, setSickLeaveStart] = useState('');
+	const [sickLeaveEnd, setSickLeaveEnd] = useState('');
+	const [dischargeDate, setDisChargeDate] = useState('');
+	const [dischargeCriteria, setDisChargeCriteria] = useState('');
 
 	const addEntry = (event: SyntheticEvent) => {
 		event.preventDefault();
@@ -24,19 +30,64 @@ const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 			onError('All fields except diagnosis codes are required');
 			return;
 		}
-		if (!Object.values(HealthCheckRating).includes(healthCheckRating)) {
+		if (
+			entryType === 'HealthCheck' &&
+			!Object.values(HealthCheckRating).includes(healthCheckRating)
+		) {
 			onError('HealthCheck rating must be 0-3');
 			return;
 		}
+
+		if (entryType === 'OccupationalHealthcare' && !employerName) {
+			onError('Employer name required');
+			return;
+		}
+
+		if (entryType === 'Hospital' && (!dischargeDate || !dischargeCriteria)) {
+			onError('Discharge date and criteria required');
+			return;
+		}
 		onError(null);
-		onSubmit({
+		const baseValues = {
 			date,
 			description,
 			diagnosisCodes,
 			specialist,
-			healthCheckRating,
-			type: 'HealthCheck',
-		});
+		};
+
+		let values: EntryFormValues;
+
+		switch (entryType) {
+			case 'HealthCheck':
+				values = {
+					...baseValues,
+					type: 'HealthCheck',
+					healthCheckRating,
+				};
+				break;
+			case 'Hospital':
+				values = {
+					...baseValues,
+					type: 'Hospital',
+					discharge: { date: dischargeDate, criteria: dischargeCriteria },
+				};
+				break;
+			case 'OccupationalHealthcare':
+				values = {
+					...baseValues,
+					type: 'OccupationalHealthcare',
+					employerName,
+					sickLeave:
+						sickLeaveStart && sickLeaveEnd
+							? { startDate: sickLeaveStart, endDate: sickLeaveEnd }
+							: undefined,
+				};
+				break;
+			default:
+				throw new Error('Unsupported Entry type');
+		}
+
+		onSubmit(values);
 	};
 
 	return (
