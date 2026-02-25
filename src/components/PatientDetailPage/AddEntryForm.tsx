@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from 'react';
 import { EntryFormValues, EntryType, HealthCheckRating } from '../../types';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Grid, TextField, Typography } from '@mui/material';
 
 interface Props {
 	entryType: EntryType;
@@ -21,8 +21,8 @@ const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 	const [employerName, setEmployerName] = useState('');
 	const [sickLeaveStart, setSickLeaveStart] = useState('');
 	const [sickLeaveEnd, setSickLeaveEnd] = useState('');
-	const [dischargeDate, setDisChargeDate] = useState('');
-	const [dischargeCriteria, setDisChargeCriteria] = useState('');
+	const [dischargeDate, setDischargeDate] = useState('');
+	const [dischargeCriteria, setDischargeCriteria] = useState('');
 
 	const addEntry = (event: SyntheticEvent) => {
 		event.preventDefault();
@@ -91,76 +91,177 @@ const AddEntryForm = ({ entryType, onSubmit, onCancel, onError }: Props) => {
 	};
 
 	return (
-		<Box component='section' sx={{ p: 2, border: '1px dashed grey' }}>
-			<h3>New {entryType} entry</h3>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					gap: '8px',
-				}}>
-				<form onSubmit={addEntry}>
+		<Box
+			component='form'
+			sx={{
+				p: 3,
+				border: '1px solid #e0e0e0',
+				borderRadius: 2,
+				bgcolor: 'background.paper',
+				boxShadow: 1,
+			}}
+			onSubmit={addEntry}>
+			<Typography variant='h6' gutterBottom>
+				New {entryType.charAt(0).toUpperCase() + entryType.slice(1)} Entry
+			</Typography>
+
+			<Grid container spacing={2}>
+				<Grid item xs={12}>
 					<TextField
-						id='description1'
+						fullWidth
 						label='Description'
 						variant='filled'
-						type='text'
 						value={description}
 						onChange={({ target }) => setDescription(target.value)}
-						fullWidth
+						required
 					/>
+				</Grid>
+
+				<Grid item xs={12} sm={6}>
 					<TextField
+						fullWidth
 						label='Date'
-						placeholder='YYYY-MM-DD'
+						type='date'
 						variant='filled'
 						value={date}
 						onChange={({ target }) => setDate(target.value)}
-						fullWidth
+						required
+						InputLabelProps={{ shrink: true }}
 					/>
+				</Grid>
+
+				<Grid item xs={12} sm={6}>
 					<TextField
+						fullWidth
 						label='Specialist'
 						variant='filled'
-						type='text'
 						value={specialist}
 						onChange={({ target }) => setSpecialist(target.value)}
-						fullWidth
+						required
 					/>
+				</Grid>
+
+				{/* Type-Specific Fields */}
+				{entryType === 'HealthCheck' && (
+					<Grid item xs={12}>
+						<TextField
+							fullWidth
+							label='HealthCheck Rating'
+							type='number'
+							variant='filled'
+							value={healthCheckRating}
+							onChange={({ target }) =>
+								setHealthCheckRating(Number(target.value) as HealthCheckRating)
+							}
+							inputProps={{ min: 0, max: 3 }}
+							required
+							helperText='0=Healthy, 1=LowRisk, 2=HighRisk, 3=CriticalRisk'
+						/>
+					</Grid>
+				)}
+
+				{entryType === 'Hospital' && (
+					<>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								fullWidth
+								label='Discharge Date'
+								type='date'
+								variant='filled'
+								value={dischargeDate}
+								onChange={({ target }) => setDischargeDate(target.value)}
+								required
+								InputLabelProps={{ shrink: true }}
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								fullWidth
+								label='Discharge Criteria'
+								variant='filled'
+								value={dischargeCriteria}
+								onChange={({ target }) => setDischargeCriteria(target.value)}
+								required
+							/>
+						</Grid>
+					</>
+				)}
+
+				{entryType === 'OccupationalHealthcare' && (
+					<>
+						<Grid item xs={12}>
+							<TextField
+								fullWidth
+								label='Employer Name'
+								variant='filled'
+								value={employerName}
+								onChange={({ target }) => setEmployerName(target.value)}
+								required
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								fullWidth
+								label='Sick Leave Start'
+								type='date'
+								variant='filled'
+								value={sickLeaveStart}
+								onChange={({ target }) => setSickLeaveStart(target.value)}
+								InputLabelProps={{ shrink: true }}
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<TextField
+								fullWidth
+								label='Sick Leave End'
+								type='date'
+								variant='filled'
+								value={sickLeaveEnd}
+								onChange={({ target }) => setSickLeaveEnd(target.value)}
+								InputLabelProps={{ shrink: true }}
+							/>
+						</Grid>
+					</>
+				)}
+
+				{/* Diagnosis Codes - Always last */}
+				<Grid item xs={12}>
 					<TextField
-						label='Healthcheck rating'
-						placeholder='0-1-2-3'
-						variant='filled'
-						type='number'
-						value={healthCheckRating}
-						onChange={({ target }) =>
-							setHealthCheckRating(Number(target.value) as HealthCheckRating)
-						}
 						fullWidth
-					/>
-					<TextField
-						label='Diagnosis Code'
+						label='Diagnosis Codes (optional)'
 						placeholder='Z57.1, N30.0'
 						variant='filled'
-						type='text'
 						value={diagnosisCodes.join(', ')}
 						onChange={({ target }) =>
-							setDiagnosisCodes(target.value.split(','))
+							setDiagnosisCodes(
+								target.value
+									.split(',')
+									.map((s) => s.trim())
+									.filter(Boolean),
+							)
 						}
-						fullWidth
+						helperText='Comma-separated codes'
 					/>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-						}}>
-						<Button variant='contained' color='error' onClick={onCancel}>
-							Cancel
-						</Button>
-						<Button variant='contained' color='inherit' type='submit'>
-							ADD
-						</Button>
-					</div>
-				</form>
-			</div>
+				</Grid>
+			</Grid>
+
+			{/* Action Buttons */}
+			<Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+				<Button
+					variant='outlined'
+					color='error'
+					onClick={onCancel}
+					sx={{ minWidth: 100 }}>
+					Cancel
+				</Button>
+				<Button
+					type='submit'
+					variant='contained'
+					color='primary'
+					sx={{ minWidth: 100 }}>
+					Add Entry
+				</Button>
+			</Box>
 		</Box>
 	);
 };
