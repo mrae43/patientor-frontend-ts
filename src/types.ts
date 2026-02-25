@@ -55,6 +55,8 @@ export type Entry =
 	| OccupationalHealthcareEntry
 	| HealthCheckEntry;
 
+export type EntryType = 'HealthCheck' | 'Hospital' | 'OccupationalHealthcare';
+
 export enum HealthCheckRating {
 	Healthy = 0,
 	LowRisk = 1,
@@ -63,4 +65,9 @@ export enum HealthCheckRating {
 }
 
 export type PatientFormValues = Omit<Patient, 'id' | 'entries'>;
-export type EntryFormValuesHealthCheck = Omit<HealthCheckEntry, 'id'>;
+
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+	? Omit<T, K>
+	: never;
+
+export type EntryFormValues = UnionOmit<Entry, 'id'>;

@@ -1,15 +1,17 @@
-import { useState, SyntheticEvent } from 'react';
-
+import { SyntheticEvent, useState } from 'react';
 import {
+	Box,
+	Paper,
+	Typography,
 	TextField,
-	InputLabel,
-	MenuItem,
-	Select,
 	Grid,
 	Button,
-	SelectChangeEvent,
+	MenuItem,
+	Select,
+	InputLabel,
+	FormControl,
+	Divider,
 } from '@mui/material';
-
 import { PatientFormValues, Gender } from '../../types';
 
 interface Props {
@@ -17,33 +19,12 @@ interface Props {
 	onSubmit: (values: PatientFormValues) => void;
 }
 
-interface GenderOption {
-	value: Gender;
-	label: string;
-}
-
-const genderOptions: GenderOption[] = Object.values(Gender).map((v) => ({
-	value: v,
-	label: v.toString(),
-}));
-
 const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
 	const [name, setName] = useState('');
 	const [occupation, setOccupation] = useState('');
 	const [ssn, setSsn] = useState('');
 	const [dateOfBirth, setDateOfBirth] = useState('');
-	const [gender, setGender] = useState(Gender.Other);
-
-	const onGenderChange = (event: SelectChangeEvent<string>) => {
-		event.preventDefault();
-		if (typeof event.target.value === 'string') {
-			const value = event.target.value;
-			const gender = Object.values(Gender).find((g) => g.toString() === value);
-			if (gender) {
-				setGender(gender);
-			}
-		}
-	};
+	const [gender, setGender] = useState<Gender>(Gender.Other);
 
 	const addPatient = (event: SyntheticEvent) => {
 		event.preventDefault();
@@ -57,73 +38,95 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
 	};
 
 	return (
-		<div>
-			<form onSubmit={addPatient}>
-				<TextField
-					label='Name'
-					fullWidth
-					value={name}
-					onChange={({ target }) => setName(target.value)}
-				/>
-				<TextField
-					label='Social security number'
-					fullWidth
-					value={ssn}
-					onChange={({ target }) => setSsn(target.value)}
-				/>
-				<TextField
-					label='Date of birth'
-					placeholder='YYYY-MM-DD'
-					fullWidth
-					value={dateOfBirth}
-					onChange={({ target }) =>
-						setDateOfBirth(target.value.replace(/\//g, '-'))
-					}
-				/>
-				<TextField
-					label='Occupation'
-					fullWidth
-					value={occupation}
-					onChange={({ target }) => setOccupation(target.value)}
-				/>
+		<Paper elevation={3} sx={{ p: 4 }}>
+			<Typography variant='h5' component='h2' gutterBottom align='center'>
+				Add New Patient
+			</Typography>
 
-				<InputLabel style={{ marginTop: 20 }}>Gender</InputLabel>
-				<Select
-					label='Gender'
-					fullWidth
-					value={gender}
-					onChange={onGenderChange}>
-					{genderOptions.map((option) => (
-						<MenuItem key={option.label} value={option.value}>
-							{option.label}
-						</MenuItem>
-					))}
-				</Select>
-
-				<Grid>
-					<Grid item>
-						<Button
-							color='secondary'
-							variant='contained'
-							style={{ float: 'left' }}
-							type='button'
-							onClick={onCancel}>
-							Cancel
-						</Button>
+			<Box component='form' onSubmit={addPatient} sx={{ mt: 2 }}>
+				<Grid container spacing={3}>
+					<Grid item xs={12} md={6}>
+						<TextField
+							fullWidth
+							required
+							label='Full Name'
+							value={name}
+							onChange={({ target }) => setName(target.value)}
+							variant='filled'
+						/>
 					</Grid>
-					<Grid item>
-						<Button
-							style={{
-								float: 'right',
-							}}
-							type='submit'
-							variant='contained'>
-							Add
-						</Button>
+
+					{/* SSN */}
+					<Grid item xs={12} md={6}>
+						<TextField
+							fullWidth
+							required
+							label='Social Security Number'
+							value={ssn}
+							onChange={({ target }) => setSsn(target.value)}
+							variant='filled'
+						/>
+					</Grid>
+
+					<Grid item xs={12} md={6}>
+						<TextField
+							fullWidth
+							required
+							label='Date of Birth'
+							type='date'
+							value={dateOfBirth}
+							onChange={({ target }) => setDateOfBirth(target.value)}
+							InputLabelProps={{ shrink: true }}
+							variant='filled'
+						/>
+					</Grid>
+
+					<Grid item xs={12} md={6}>
+						<TextField
+							fullWidth
+							required
+							label='Occupation'
+							value={occupation}
+							onChange={({ target }) => setOccupation(target.value)}
+							variant='filled'
+						/>
+					</Grid>
+
+					<Grid item xs={12}>
+						<FormControl fullWidth required variant='filled'>
+							<InputLabel>Gender</InputLabel>
+							<Select
+								value={gender}
+								label='Gender'
+								onChange={(e) => setGender(e.target.value as Gender)}>
+								<MenuItem value={Gender.Male}>Male</MenuItem>
+								<MenuItem value={Gender.Female}>Female</MenuItem>
+								<MenuItem value={Gender.Other}>Other</MenuItem>
+							</Select>
+						</FormControl>
 					</Grid>
 				</Grid>
-			</form>
-		</div>
+
+				<Divider sx={{ my: 4 }} />
+
+				<Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+					<Button
+						variant='outlined'
+						color='inherit'
+						onClick={onCancel}
+						sx={{ minWidth: 120 }}>
+						Cancel
+					</Button>
+					<Button
+						type='submit'
+						variant='contained'
+						color='primary'
+						sx={{ minWidth: 120 }}>
+						Add Patient
+					</Button>
+				</Box>
+			</Box>
+		</Paper>
 	);
 };
 
