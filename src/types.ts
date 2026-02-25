@@ -55,6 +55,8 @@ export type Entry =
 	| OccupationalHealthcareEntry
 	| HealthCheckEntry;
 
+export type EntryType = 'HealthCheck' | 'Hospital' | 'OccupationalHealthcare';
+
 export enum HealthCheckRating {
 	Healthy = 0,
 	LowRisk = 1,
